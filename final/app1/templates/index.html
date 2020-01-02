@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<body>
+<div id="starting">
+  <div class="container">
+    <div class="row">
+      <h1>List of VOICES
+        <button  type="button" class="btn btn-primary" data-toggle="modal" data-target="#addvoiceModal">ADD VOICE</button>
+      </h1>
+      <table class="table">
+        <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">text</th>
+          <th scope="col">message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="voice in voices">
+          <th scope="row">${voice.text}</th>
+          <td>${voice.text}</td>
+          <td>
+            <button class="btn btn-info" v-on:click="getvoice(voice.text)">Edit</button>
+            <button class="btn btn-danger" v-on:click="deletevoice(voice.text)">Delete</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- Add Article Modal -->
+          <div class="modal fade" id="addArticleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">ADD VOICE</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form v-on:submit.prevent="addvoice()">
+                <div class="modal-body">
+                    <div class="form-group">
+                      <label for="text">voice text</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="article_heading"
+                        placeholder="Enter voice text"
+                        v-model="newvoice.text"
+                        required="required" >
+                    </div>
+                    <div class="form-group">
+                      <label for="text">voice Body</label>
+                      <textarea
+                        class="form-control"
+                        id="article_body"
+                        placeholder="Enter voice message"
+                        v-model="newvoice.text"
+                        required="required"
+                        rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </form>
+              </div>
+            </div>
+           <div class="loading" v-if="loading===true">Loading&#8230;</div>
+          </div>
+    </div>
+  </div>
+  <div class="loading" v-if="loading===true">Loading&#8230;</div>
+</div>
+</body>
+</html>
+<!--<body>
+<! — bootrtap js files →
+ <script src=”https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity=”sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN” crossorigin=”anonymous”></script>
+ <script src=”https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity=”sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q” crossorigin=”anonymous”></script>
+ <script src=”https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity=”sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl” crossorigin=”anonymous”></script>
+
+ <! — vue.js files →
+ <script src=”https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+ <script src=”https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+</body>-->
+
+<script type=”text/javascript”>
+ new Vue({
+   el: ‘#starting’,
+   delimiters: [‘${‘,’}’],
+   data: {
+   voices: [],
+   loading: false,
+   currentvoice: {},
+   message: null,
+   newvoice: { ‘voice_heading’: null, ‘voice_body’: null },
+ },
+mounted: function() {
+ this.getvoices();
+},
+methods: {
+ getvoices: function() {
+  this.loading = true;
+  this.$http.get(‘/api/voice/’)
+      .then((response) => {
+        this.voices = response.data;
+        this.loading = false;
+      })
+      .catch((err) => {
+       this.loading = false;
+       console.log(err);
+      })
+ },
+ getvoice: function(id) {
+  this.loading = true;
+  this.$http.get(`/api/voice/${id}/`)
+      .then((response) => {
+        this.currentvoice = response.data;
+        this.loading = false;
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      })
+ },
+ addvoice: function() {
+  this.loading = true;
+  this.$http.post(‘/api/voice/’,this.newvoice)
+      .then((response) => {
+        this.loading = false;
+        this.getvoices();
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      })
+ },
+ updatevoice: function() {
+  this.loading = true;
+  this.$http.put(`/api/voice/${this.currentvoice.voice_id}/`,     this.currentvoice)
+      .then((response) => {
+        this.loading = false;
+        this.currentvoice = response.data;
+        this.getvoices();
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      })
+ },
+ deletevoice: function(id) {
+  this.loading = true;
+  this.$http.delete(`/api/voice/${id}/` )
+      .then((response) => {
+        this.loading = false;
+        this.getvoices();
+      })
+      .catch((err) => {
+        this.loading = false;
+        console.log(err);
+      })
+ },
+ methods: {
+}
+ });
+ </script>
